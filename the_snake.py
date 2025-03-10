@@ -63,7 +63,7 @@ class Apple(GameObject):
         self.position = (
             randint(0, GRID_SIZE) * GRID_SIZE,
             randint(0, GRID_SIZE) * GRID_SIZE
-            )
+        )
 
     def randomize_position(self):
         """Это публичный метод, который делает что-то полезное."""
