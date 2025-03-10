@@ -1,7 +1,5 @@
 """Это импорт, который делает что-то полезное."""
 from random import randint
-
-
 import pygame
 
 # Константы для размеров поля и сетки:
@@ -72,7 +70,7 @@ class Apple(GameObject):
         self.position = (
             randint(0, GRID_SIZE) * GRID_SIZE,
             randint(0, GRID_SIZE) * GRID_SIZE
-            )
+        )
 
     def draw(self):
         """Это публичный метод, который делает что-то полезное."""
@@ -128,7 +126,7 @@ class Snake(GameObject):
         new_head_position = (
             head_x + self.direction[0] * GRID_SIZE,
             head_y + self.direction[1] * GRID_SIZE
-            )
+        )
 
         if new_head_position[0] < 0:
             new_head_position = (SCREEN_WIDTH - GRID_SIZE, head_y)
