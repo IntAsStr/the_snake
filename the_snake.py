@@ -192,14 +192,14 @@ def main():
             snake.update_direction()
             snake.draw()
             pygame.display.update()
-
+            snake_head = snake.get_head_position()
             # поедание яблочка.
-            if snake.get_head_position() == apple.position:
+            if snake_head == apple.position:
                 snake.length += 1
                 apple.randomize_position(snake.positions)
 
             # Если змейка укусит хвост
-            if snake.get_head_position() in snake.positions[1:]:
+            if snake_head in snake.positions[1:]:
                 snake.reset()
                 apple.randomize_position(snake.positions)
         except Exception:
