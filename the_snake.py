@@ -203,7 +203,7 @@ def main():
                 snake.reset()
                 apple.randomize_position(snake.positions)
         except pygame.error as e:
-            print("Ошибка PyGame:", e)
+            print('Ошибка PyGame:', e)
             running = False
 
     pygame.quit()
