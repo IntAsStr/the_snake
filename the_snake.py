@@ -188,14 +188,12 @@ def main():
             screen.fill(BOARD_BACKGROUND_COLOR)
             handle_keys(snake)
             apple.draw()
-            snake.draw()
             snake.move()
             snake.update_direction()
+            snake.draw()
             pygame.display.update()
 
-            if len(snake.positions) > snake.length:
-                snake.positions.pop()
-
+            # поедание яблочка.
             if snake.get_head_position() == apple.position:
                 snake.length += 1
                 apple.randomize_position(snake.positions)
@@ -203,7 +201,7 @@ def main():
             # Если змейка укусит хвост
             if snake.get_head_position() in snake.positions[1:]:
                 snake.reset()
-                apple.randomize_position()
+                apple.randomize_position(snake.positions)
         except Exception:
             running = False
 
