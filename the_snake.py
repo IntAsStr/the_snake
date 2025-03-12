@@ -163,7 +163,7 @@ def handle_keys(game_object):
     """Это публичный метод, который делает что-то полезное."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            raise Exception
+            raise pygame.error
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP and game_object.direction != DOWN:
                 game_object.next_direction = UP
@@ -202,7 +202,8 @@ def main():
             if snake_head in snake.positions[1:]:
                 snake.reset()
                 apple.randomize_position(snake.positions)
-        except Exception:
+        except pygame.error as e:
+            print("Ошибка PyGame:", e)
             running = False
 
     pygame.quit()
