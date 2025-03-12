@@ -202,8 +202,7 @@ def main():
             if snake_head in snake.positions[1:]:
                 snake.reset()
                 apple.randomize_position(snake.positions)
-        except pygame.error as e:
-            print('Ошибка PyGame:', e)
+        except pygame.error:
             running = False
 
     pygame.quit()
