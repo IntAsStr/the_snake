@@ -62,7 +62,7 @@ class Apple(GameObject):
     def randomize_position(self, snake_positions=None):
         """Рандомное появление яблока на поле."""
         if snake_positions is None:
-            return Snake.positions
+            return snake_positions
         while True:
             # Генерируем случайную позицию
             self.position = (
