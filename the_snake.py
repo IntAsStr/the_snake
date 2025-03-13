@@ -43,12 +43,11 @@ class GameObject:
     """Родительский класс."""
 
     def __init__(self):
-        """Инит родительского класса."""
         self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
         self.body_color = None
 
     def draw(self):
-        """Это публичный метод, который делает что-то полезное."""
+        """Отрисовка объектов."""
         pass
 
 
@@ -56,7 +55,6 @@ class Apple(GameObject):
     """Структура яблока."""
 
     def __init__(self, snake_positions=None):
-        """Инит яблока."""
         super().__init__()
         self.body_color = APPLE_COLOR
         self.position = self.randomize_position(snake_positions)
@@ -64,8 +62,7 @@ class Apple(GameObject):
     def randomize_position(self, snake_positions=None):
         """Рандомное появление яблока на поле."""
         if snake_positions is None:
-            return  # если позиции змейки не переданы, ничего не делаем
-
+            return Snake.positions
         while True:
             # Генерируем случайную позицию
             self.position = (
@@ -89,7 +86,6 @@ class Snake(GameObject):
     """Структура Змейки."""
 
     def __init__(self):
-        """Инит змейки."""
         super().__init__()
         self.body_color = SNAKE_COLOR
         self.reset()
@@ -133,17 +129,15 @@ class Snake(GameObject):
 
         # Проверка границ экрана (ps.Заметка для ревью делал с помощью gpt
         # логику понял но сам до такого догадаться не смог)
-        new_head_position = (
-            (head_x + dx * GRID_SIZE) % SCREEN_WIDTH,
-            (head_y + dy * GRID_SIZE) % SCREEN_HEIGHT
-        )
+        new_head_x = (head_x + dx * GRID_SIZE) % SCREEN_WIDTH
+        new_head_y = (head_y + dy * GRID_SIZE) % SCREEN_HEIGHT
 
-        new_head_position = (
-            new_head_position[0] if new_head_position[0] >= 0 else
-            new_head_position[0] + SCREEN_WIDTH,
-            new_head_position[1] if new_head_position[1] >= 0 else
-            new_head_position[1] + SCREEN_HEIGHT
-        )
+        if new_head_x < 0:
+            new_head_x += SCREEN_WIDTH
+        if new_head_y < 0:
+            new_head_y += SCREEN_HEIGHT
+
+        new_head_position = (new_head_x, new_head_y)
 
         self.positions.insert(0, new_head_position)
         if len(self.positions) > self.length:
@@ -159,11 +153,17 @@ class Snake(GameObject):
         self.next_direction = None
 
 
+class QuitGameError(Exception):
+    """Ошибка, возникающая при закрытии игры."""
+
+    print('Игра закрыта пользователем')
+
+
 def handle_keys(game_object):
-    """Это публичный метод, который делает что-то полезное."""
+    """Назначение направления движения змейки и выхода из игры."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            raise pygame.error
+            raise QuitGameError
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP and game_object.direction != DOWN:
                 game_object.next_direction = UP
@@ -180,32 +180,34 @@ def main():
     # Инициализация PyGame:
     pygame.init()
     snake = Snake()
-    apple = Apple(snake.get_snake_position())
+    apple = Apple(snake.positions)
     running = True
     while running:
-        try:
-            clock.tick(SPEED)
+        screen.fill(BOARD_BACKGROUND_COLOR)
+        snake_head = snake.get_head_position()
+
+        # поедание яблочка.
+        if snake_head == apple.position:
+            snake.length += 1
+            apple.randomize_position(snake.positions)
+
+        # Если змейка укусит хвост
+        if snake_head in snake.positions[1:]:
+            snake.reset()
+            apple.randomize_position(snake.positions)
             screen.fill(BOARD_BACKGROUND_COLOR)
+
+        clock.tick(SPEED)
+        apple.draw()
+        snake.move()
+        snake.update_direction()
+        snake.draw()
+        pygame.display.update()
+        try:
             handle_keys(snake)
-            apple.draw()
-            snake.move()
-            snake.update_direction()
-            snake.draw()
-            pygame.display.update()
-            snake_head = snake.get_head_position()
-            # поедание яблочка.
-            if snake_head == apple.position:
-                snake.length += 1
-                apple.randomize_position(snake.positions)
-
-            # Если змейка укусит хвост
-            if snake_head in snake.positions[1:]:
-                snake.reset()
-                apple.randomize_position(snake.positions)
-        except pygame.error:
+        except QuitGameError:
             running = False
-
-    pygame.quit()
+            pygame.quit()
 
 
 if __name__ == '__main__':
