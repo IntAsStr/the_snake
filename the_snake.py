@@ -156,10 +156,9 @@ class Snake(GameObject):
 class QuitGameError(Exception):
     """Исключение, выбрасываемое при выходе из игры."""
 
-    def __init__(self, message="Игра завершена."):
+    def __init__(self, message='Игра завершена.'):
         self.message = message
         super().__init__(self.message)
-
 
 
 def handle_keys(game_object):
@@ -208,11 +207,9 @@ def main():
         pygame.display.update()
         try:
             handle_keys(snake)
-        # except QuitGameError as e:
         except QuitGameError:
             running = False
             pygame.quit()
-            # print(f'{e}') тестеровщик не пускает принты не знаю как поправить
 
 
 if __name__ == '__main__':
