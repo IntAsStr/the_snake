@@ -1,9 +1,7 @@
 from random import randint
 
 import pygame
-
 import sys
-
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 GRID_SIZE = 20
@@ -63,10 +61,7 @@ class Apple(GameObject):
             snake_positions=[((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
         )
 
-    def randomize_position(
-            self,
-            snake_positions=[((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
-            ):
+    def randomize_position(self, snake_positions):
         """Рандомное появление яблока на поле."""
         while True:
             self.position = (
@@ -158,7 +153,7 @@ def handle_keys(game_object):
     """Назначение направления движения змейки и выхода из игры."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            raise QuitGameError("Вы вышли из игры.")
+            raise QuitGameError('Вы вышли из игры.')
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP and game_object.direction != DOWN:
                 game_object.next_direction = UP
