@@ -2,6 +2,8 @@ from random import randint
 
 import pygame
 
+import sys
+
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 GRID_SIZE = 20
@@ -54,17 +56,19 @@ class GameObject:
 class Apple(GameObject):
     """Структура яблока."""
 
-    def __init__(self, snake_positions=None):
+    def __init__(self):
         super().__init__()
         self.body_color = APPLE_COLOR
-        self.position = self.randomize_position(snake_positions)
+        self.position = self.randomize_position(
+            snake_positions=[((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
+        )
 
-    def randomize_position(self, snake_positions=None):
+    def randomize_position(
+            self,
+            snake_positions=[((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
+            ):
         """Рандомное появление яблока на поле."""
-        if snake_positions is None:
-            return snake_positions
         while True:
-            # Генерируем случайную позицию
             self.position = (
                 randint(0, GRID_SIZE) * GRID_SIZE,
                 randint(0, GRID_SIZE) * GRID_SIZE
@@ -90,7 +94,6 @@ class Snake(GameObject):
         self.body_color = SNAKE_COLOR
         self.reset()
 
-    # Метод draw класса Snake
     def draw(self):
         """Отрисовка змейки."""
         for position in self.positions[:-1]:
@@ -98,12 +101,10 @@ class Snake(GameObject):
             pygame.draw.rect(screen, self.body_color, rect)
             pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
-        # Отрисовка головы змейки
         head_rect = pygame.Rect(self.positions[-1], (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(screen, self.body_color, head_rect)
         pygame.draw.rect(screen, BORDER_COLOR, head_rect, 1)
 
-        # Затирание последнего сегмента
         if self.last:
             last_rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
@@ -117,10 +118,6 @@ class Snake(GameObject):
     def get_head_position(self):
         """Поиск головы змейки."""
         return self.positions[0]
-
-    def get_snake_position(self):
-        """Поиск всей змейки."""
-        return self.positions
 
     def move(self):
         """Движение змейки."""
@@ -156,16 +153,12 @@ class Snake(GameObject):
 class QuitGameError(Exception):
     """Исключение, выбрасываемое при выходе из игры."""
 
-    def __init__(self, message='Игра завершена.'):
-        self.message = message
-        super().__init__(self.message)
-
 
 def handle_keys(game_object):
     """Назначение направления движения змейки и выхода из игры."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            raise QuitGameError
+            raise QuitGameError("Вы вышли из игры.")
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP and game_object.direction != DOWN:
                 game_object.next_direction = UP
@@ -180,36 +173,36 @@ def handle_keys(game_object):
 def main():
     """Это главная функция."""
     # Инициализация PyGame:
+    screen.fill(BOARD_BACKGROUND_COLOR)
     pygame.init()
     snake = Snake()
-    apple = Apple(snake.positions)
-    running = True
-    while running:
-        screen.fill(BOARD_BACKGROUND_COLOR)
+    apple = Apple()
+    while True:
+        try:
+            handle_keys(snake)
+        except QuitGameError:
+            pygame.quit()
+            sys.exit('Вы вышли из игры')
+
         snake_head = snake.get_head_position()
 
-        # поедание яблочка.
         if snake_head == apple.position:
             snake.length += 1
             apple.randomize_position(snake.positions)
 
-        # Если змейка укусит хвост
         if snake_head in snake.positions[1:]:
             snake.reset()
             apple.randomize_position(snake.positions)
             screen.fill(BOARD_BACKGROUND_COLOR)
 
         clock.tick(SPEED)
-        apple.draw()
         snake.move()
         snake.update_direction()
-        snake.draw()
+        apple.draw()
         pygame.display.update()
-        try:
-            handle_keys(snake)
-        except QuitGameError:
-            running = False
-            pygame.quit()
+        # без закрашивания в конце змейка бесконечно закрашивает клетки
+        screen.fill(BOARD_BACKGROUND_COLOR)
+        snake.draw()
 
 
 if __name__ == '__main__':
